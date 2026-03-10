@@ -130,8 +130,58 @@ func newBooleanCompareFunction(funcDecl *ast.FuncDecl) (BooleanCompareFunction, 
 }
 
 func newTestingsTCompareFunction(funcDecl *ast.FuncDecl) (TestingsTCompareFunction, bool) {
-	// TODO
-	return TestingsTCompareFunction{}, false
+	if funcDecl.Type.Results != nil {
+		return TestingsTCompareFunction{}, false
+	}
+
+	params := funcDecl.Type.Params
+	if params == nil || len(params.List) < 2 {
+		return TestingsTCompareFunction{}, false
+	}
+
+	// Check that the first parameter is *testing.T
+	if !isTestingTField(params.List[0]) {
+		return TestingsTCompareFunction{}, false
+	}
+
+	var param1, param2 string
+
+	// Check the remaining parameters (should be 2 more parameters total, or 1 parameter with 2 names)
+	switch len(params.List) {
+	case 2:
+		// Case: t *testing.T, a, b MyStruct (one field with two names)
+		param := params.List[1]
+		if param.Type == nil {
+			return TestingsTCompareFunction{}, false
+		}
+
+		if len(param.Names) != 2 {
+			return TestingsTCompareFunction{}, false
+		}
+
+		param1 = param.Names[0].Name
+		param2 = param.Names[1].Name
+	case 3:
+		// Case: t *testing.T, a MyStruct, b MyStruct (two fields with one name each)
+		if len(params.List[1].Names) != 1 || len(params.List[2].Names) != 1 {
+			return TestingsTCompareFunction{}, false
+		}
+
+		if !isSameStructType(params.List[1].Type, params.List[2].Type) {
+			return TestingsTCompareFunction{}, false
+		}
+
+		param1 = params.List[1].Names[0].Name
+		param2 = params.List[2].Names[0].Name
+	default:
+		return TestingsTCompareFunction{}, false
+	}
+
+	return TestingsTCompareFunction{
+		funcDecl: funcDecl,
+		param1:   param1,
+		param2:   param2,
+	}, true
 }
 
 // isSameStructType checks if two types are the same and are struct types (or named types that could be structs).
