@@ -109,6 +109,11 @@ func (l *testcommentslint) run(pass *analysis.Pass) (any, error) {
 				importGroup.GoCmp = node
 			}
 		case *ast.FuncDecl:
+			if compareFunc, isCompareFunc := model.NewCompareFunction(importGroup, node); isCompareFunc {
+				// TODO: lint this and propose use cmp.Equal or cmp.Diff
+				fmt.Println(compareFunc)
+			}
+
 			testFunc, ok := model.NewTestFunction(importGroup, node)
 			if !ok {
 				return
