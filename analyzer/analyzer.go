@@ -15,11 +15,12 @@ import (
 )
 
 const (
-	EqualityComparisonCheckName       = "equality-comparison"
-	GotBeforeWantCheck                = "got-before-want"
-	IdentifyTheFunctionCHeck          = "identify-function"
-	TableDrivenFormatCheckTypeName    = "table-driven-format.type"
-	TableDrivenFormatCheckInlinedName = "table-driven-format.inlined"
+	EqualityComparisonReflectCheckName = "equality-comparison.reflect"
+	EqualityComparisonEqualCheckName   = "equality-comparison.equal"
+	GotBeforeWantCheck                 = "got-before-want"
+	IdentifyTheFunctionCHeck           = "identify-function"
+	TableDrivenFormatCheckTypeName     = "table-driven-format.type"
+	TableDrivenFormatCheckInlinedName  = "table-driven-format.inlined"
 )
 
 func New() *analysis.Analyzer {
@@ -33,8 +34,10 @@ func New() *analysis.Analyzer {
 		Requires: []*analysis.Analyzer{inspect.Analyzer},
 	}
 
-	a.Flags.BoolVar(&l.equalityComparison, EqualityComparisonCheckName, true,
-		"Checks reflect.DeepEqual can be replaced by newer cmp.Equal.")
+	a.Flags.BoolVar(&l.equalityComparison.reflect, EqualityComparisonReflectCheckName, true,
+		"Checks reflect.DeepEqual can be replaced by newer cmp.Equal or cmp.Diff.")
+	a.Flags.BoolVar(&l.equalityComparison.equal, EqualityComparisonEqualCheckName, true,
+		"Checks helper comparing functions can be replaced by cmp.Equal or cmp.Diff.")
 	a.Flags.BoolVar(&l.gotBeforeWant, GotBeforeWantCheck, true,
 		"Check that output the actual value that the function returned before printing the value that was expected.")
 	a.Flags.BoolVar(&l.identifyFunction, IdentifyTheFunctionCHeck, true,
@@ -49,10 +52,14 @@ func New() *analysis.Analyzer {
 
 type (
 	testcommentslint struct {
-		equalityComparison bool
+		equalityComparison equalityComparison
 		gotBeforeWant      bool
 		identifyFunction   bool
 		tableDrivenFormat  tableDrivenFormat
+	}
+	equalityComparison struct {
+		reflect bool
+		equal   bool
 	}
 	tableDrivenFormat struct {
 		formatType string
@@ -109,17 +116,19 @@ func (l *testcommentslint) run(pass *analysis.Pass) (any, error) {
 				importGroup.GoCmp = node
 			}
 		case *ast.FuncDecl:
-			if compareFunc, isCompareFunc := model.NewCompareFunction(importGroup, node); isCompareFunc {
-				checks.NewCompareFunction().Check(pass, compareFunc)
+			if l.equalityComparison.equal {
+				if compareFunc, isCompareFunc := model.NewCompareFunction(importGroup, node); isCompareFunc {
+					checks.NewCompareFunction().Check(pass, compareFunc)
 
-				return
+					return
+				}
 			}
 
 			if testFunc, ok := model.NewTestFunction(importGroup, node); ok {
 				tbfCheck.Check(pass, testFunc)
 
-				if l.equalityComparison {
-					checks.NewEqualityComparison().Check(pass, testFunc)
+				if l.equalityComparison.reflect {
+					checks.NewReflectDeepEqual().Check(pass, testFunc)
 				}
 
 				if l.gotBeforeWant {

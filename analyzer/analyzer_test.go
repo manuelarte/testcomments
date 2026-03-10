@@ -22,15 +22,15 @@ func TestAnalyzer(t *testing.T) {
 		"got before want": {
 			patterns: "got_before_want",
 			options: map[string]string{
-				EqualityComparisonCheckName: "false",
-				GotBeforeWantCheck:          "true",
-				IdentifyTheFunctionCHeck:    "false",
+				EqualityComparisonReflectCheckName: "false",
+				GotBeforeWantCheck:                 "true",
+				IdentifyTheFunctionCHeck:           "false",
 			},
 		},
 		"identify function": {
 			patterns: "identify_function",
 			options: map[string]string{
-				EqualityComparisonCheckName: "false",
+				EqualityComparisonReflectCheckName: "false",
 			},
 		},
 		"table-driven test format map-inlined": {
@@ -47,8 +47,8 @@ func TestAnalyzer(t *testing.T) {
 				TableDrivenFormatCheckInlinedName: "false",
 			},
 		},
-		"compare-functions": {
-			patterns: "compare-functions",
+		"compare_functions": {
+			patterns: "compare_functions",
 		},
 	}
 

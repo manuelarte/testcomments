@@ -23,16 +23,20 @@ testcommentslint [-equality-comparison=true|false] [-got-before-want=true|false]
 
 Parameters:
 
-- `equality-comparison`: `true|false` (default `true`) Checks `reflect.DeepEqual` can be replaced by newer `cmp.Equal`.
-- `got-before-want`: `true|false` (default `true`) Check that output the actual value that the function returned before
-printing the value that was expected.
+- `equality-comparison.reflect`: `true|false` (default `true`) Checks `reflect.DeepEqual` can be replaced by newer `cmp.Equal`.
+- `equality-comparison.equal`: `true|false` (default `true`) Checks helper test functions to compare two structs that
+can be replaced by either `cmp.Equal` or `cmp.Diff`.
+- `got-before-want`: `true|false` (default `true`) Check that the failure message outputs the actual value that the
+function returned before printing the value that was expected.
 - `identify-function`: `true|false` (default `true`) Check that the failure messages in `t.Errorf` contains the function name.
 - `table-driven-format.type`: `map|slice` (default ``) Check that the table-driven tests are either Map or Slice, empty to leave it as it is.
 - `table-driven-format.inlined`: `true|false` (default `false`) Check that the table-driven tests are inlined in the `for` loop.
 
 ## 🚀 Features
 
-### [Equality Comparison and Diffs](https://go.dev/wiki/TestComments#equality-comparison-and-diffs)
+### Equality Comparison
+
+#### [Reflect](https://go.dev/wiki/TestComments#equality-comparison-and-diffs)
 
 This linter detects the expression:
 
@@ -50,6 +54,18 @@ For more use cases and examples, check [equality-comparison](analyzer/testdata/s
 > [!NOTE]
 > Suggested Fix can't be supported since it could potentially imply adding go-cmp dependency
 > and `reflect.DeepEqual` can't be directly replaced by `cmp.Equal` or `cmp.Diff`.
+
+#### Equal
+
+This linter detects helper functions like:
+
+```go
+func areEqual(a, b MyStruct) bool {
+ ...
+}
+```
+
+And propose to use `cmp.Equal` or `cmp.Diff`.
 
 ### [Got before Want](https://go.dev/wiki/TestComments#got-before-want)
 
