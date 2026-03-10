@@ -43,9 +43,6 @@ type (
 
 // NewCompareFunction returns a new CompareFunction based on the funcDecl.
 // It detects functions that compare two structs by checking the signature.
-// Expected signatures:
-// - myFunction(t *testing.T, x MyStruct, y MyStruct) - no return type
-// - myFunction(x MyStruct, y MyStruct) bool - returns bool.
 func NewCompareFunction(_ ImportGroup, funcDecl *ast.FuncDecl) (CompareFunction, bool) {
 	booleanCompareFunction, isBooleanCompareFunction := newBooleanCompareFunction(funcDecl)
 	if isBooleanCompareFunction {
