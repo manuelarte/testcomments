@@ -47,6 +47,9 @@ func TestAnalyzer(t *testing.T) {
 				TableDrivenFormatCheckInlinedName: "false",
 			},
 		},
+		"compare-functions": {
+			patterns: "compare-functions",
+		},
 	}
 
 	for name, test := range testCases {
