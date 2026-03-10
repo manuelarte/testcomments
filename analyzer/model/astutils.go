@@ -35,10 +35,7 @@ func importName(is *ast.ImportSpec) string {
 	return parts[len(parts)-1]
 }
 
-//nolint:nestif // no need
 func isTestFunction(funcDecl *ast.FuncDecl) (bool, string) {
-	testMethodPackageType := "testing"
-	testMethodStruct := "T"
 	testPrefix := "Test"
 
 	if !strings.HasPrefix(funcDecl.Name.Name, testPrefix) {
@@ -50,19 +47,42 @@ func isTestFunction(funcDecl *ast.FuncDecl) (bool, string) {
 	}
 
 	param := funcDecl.Type.Params.List[0]
-	if starExp, ok := param.Type.(*ast.StarExpr); ok {
-		if selectExpr, isSelector := starExp.X.(*ast.SelectorExpr); isSelector {
-			if selectExpr.Sel.Name == testMethodStruct {
-				if s, isIdent := selectExpr.X.(*ast.Ident); isIdent {
-					if len(param.Names) > 0 {
-						return s.Name == testMethodPackageType, param.Names[0].Name
-					}
-				}
-			}
-		}
+	if !isTestingTField(param) {
+		return false, ""
 	}
 
-	return false, ""
+	return true, param.Names[0].Name
+}
+
+// isTestingTField check whether the field is *testing.T.
+func isTestingTField(f *ast.Field) bool {
+	testMethodPackageType := "testing"
+	testMethodStruct := "T"
+
+	starExp, ok := f.Type.(*ast.StarExpr)
+	if !ok {
+		return false
+	}
+
+	selectExpr, isSelector := starExp.X.(*ast.SelectorExpr)
+	if !isSelector {
+		return false
+	}
+
+	if selectExpr.Sel.Name != testMethodStruct {
+		return false
+	}
+
+	s, isIdent := selectExpr.X.(*ast.Ident)
+	if !isIdent {
+		return false
+	}
+
+	if len(f.Names) > 0 {
+		return s.Name == testMethodPackageType
+	}
+
+	return false
 }
 
 func isMapOrSliceCompositeLit(expr ast.Expr) *ast.CompositeLit {

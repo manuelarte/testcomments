@@ -15,6 +15,6 @@ func TestCompareTwoStructs(t *testing.T) {
 	}
 }
 
-func areEqual(a, b MyStruct) bool {
-	return a.Name == b.Name && a.Surname == b.Surname // want `Use cmp.Equal or cmp.Diff for equality comparison`
+func areEqual(a, b MyStruct) bool { // want `Use cmp.Equal or cmp.Diff for equality comparison`
+	return a.Name == b.Name && a.Surname == b.Surname
 }

@@ -110,27 +110,27 @@ func (l *testcommentslint) run(pass *analysis.Pass) (any, error) {
 			}
 		case *ast.FuncDecl:
 			if compareFunc, isCompareFunc := model.NewCompareFunction(importGroup, node); isCompareFunc {
-				// TODO: lint this and propose use cmp.Equal or cmp.Diff
-				fmt.Println(compareFunc)
-			}
+				checks.NewCompareFunction().Check(pass, compareFunc)
 
-			testFunc, ok := model.NewTestFunction(importGroup, node)
-			if !ok {
 				return
 			}
 
-			tbfCheck.Check(pass, testFunc)
+			if testFunc, ok := model.NewTestFunction(importGroup, node); ok {
+				tbfCheck.Check(pass, testFunc)
 
-			if l.equalityComparison {
-				checks.NewEqualityComparison().Check(pass, testFunc)
-			}
+				if l.equalityComparison {
+					checks.NewEqualityComparison().Check(pass, testFunc)
+				}
 
-			if l.gotBeforeWant {
-				checks.NewGotBeforeWant().Check(pass, testFunc)
-			}
+				if l.gotBeforeWant {
+					checks.NewGotBeforeWant().Check(pass, testFunc)
+				}
 
-			if l.identifyFunction {
-				checks.NewIdentifyFunction().Check(pass, testFunc)
+				if l.identifyFunction {
+					checks.NewIdentifyFunction().Check(pass, testFunc)
+				}
+
+				return
 			}
 		}
 	})
