@@ -1,8 +1,8 @@
 # Test Comments Lint
 
-[![CI](https://github.com/manuelarte/testcommentslint/actions/workflows/ci.yml/badge.svg)](https://github.com/manuelarte/testcommentslint/actions/workflows/ci.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/manuelarte/testcommentslint)](https://goreportcard.com/report/github.com/manuelarte/testcommentslint)
-![version](https://img.shields.io/github/v/release/manuelarte/testcommentslint)
+[![CI](https://github.com/manuelarte/testcomments/actions/workflows/ci.yml/badge.svg)](https://github.com/manuelarte/testcomments/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/manuelarte/testcomments)](https://goreportcard.com/report/github.com/manuelarte/testcomments)
+![version](https://img.shields.io/github/v/release/manuelarte/testcomments)
 
 Go Lint that follows standards described in [TestComments](https://go.dev/wiki/TestComments).
 
@@ -11,13 +11,13 @@ Go Lint that follows standards described in [TestComments](https://go.dev/wiki/T
 To install it, run:
 
 ```bash
-go install github.com/manuelarte/testcommentslint@latest
+go install github.com/manuelarte/testcomments@latest
 ```
 
 And then use it with
 
 ```bash
-testcommentslint [-equality-comparison=true|false] [-got-before-want=true|false] [-identify-function=true|false]
+testcomments [-equality-comparison=true|false] [-got-before-want=true|false] [-identify-function=true|false]
 [-table-driven-format.type=map|slice] [-table-driven-format.inlined=true|false] ./...
 ```
 

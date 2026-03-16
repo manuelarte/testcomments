@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/tools/go/analysis"
 
-	"github.com/manuelarte/testcommentslint/analyzer/model"
+	"github.com/manuelarte/testcomments/analyzer/model"
 )
 
 // ReflectDeepEqual checks that reflect.DeepEqual can be replaced by newer cmp.Equal.
@@ -79,7 +79,7 @@ func (c ReflectDeepEqual) checkCallExpr(call *ast.CallExpr, reflectImportName st
 				Category: c.category,
 				Message:  "Use cmp.Equal or cmp.Diff for equality comparison",
 
-				URL: "https://github.com/manuelarte/testcommentslint/tree/main?tab=readme-ov-file#equality-comparison-and-diffs",
+				URL: "https://github.com/manuelarte/testcomments/tree/main?tab=readme-ov-file#equality-comparison-and-diffs",
 			}
 		}
 	}

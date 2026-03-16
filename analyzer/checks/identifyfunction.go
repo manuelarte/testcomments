@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/tools/go/analysis"
 
-	"github.com/manuelarte/testcommentslint/analyzer/model"
+	"github.com/manuelarte/testcomments/analyzer/model"
 )
 
 // IdentifyFunction check that the failure messages in t.Errorf/Fatalf contains the function name.
@@ -34,7 +34,7 @@ func (c IdentifyFunction) Check(pass *analysis.Pass, testFunc model.TestFunction
 			End:      testBlock.TErrorCallExpr().CallExpr().End(),
 			Category: c.category,
 			Message:  "Failure messages should include the name of the function that failed",
-			URL:      "https://github.com/manuelarte/testcommentslint/tree/main?tab=readme-ov-file#identify-the-function",
+			URL:      "https://github.com/manuelarte/testcomments/tree/main?tab=readme-ov-file#identify-the-function",
 		}
 		pass.Report(diag)
 	}

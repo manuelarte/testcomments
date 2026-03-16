@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/tools/go/analysis"
 
-	"github.com/manuelarte/testcommentslint/analyzer/model"
+	"github.com/manuelarte/testcomments/analyzer/model"
 )
 
 // GotBeforeWant struct that test outputs should output the actual value that the function returned
@@ -59,7 +59,7 @@ func (c GotBeforeWant) Check(pass *analysis.Pass, testFunc model.TestFunction) {
 			Category: c.category,
 			Message: "Test outputs should output the actual value that the function returned before " +
 				"printing the value that was expected",
-			URL: "https://github.com/manuelarte/testcommentslint/tree/main?tab=readme-ov-file#got-before-want",
+			URL: "https://github.com/manuelarte/testcomments/tree/main?tab=readme-ov-file#got-before-want",
 		}
 		pass.Report(diag)
 	}

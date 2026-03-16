@@ -10,8 +10,8 @@ import (
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
 
-	"github.com/manuelarte/testcommentslint/analyzer/checks"
-	"github.com/manuelarte/testcommentslint/analyzer/model"
+	"github.com/manuelarte/testcomments/analyzer/checks"
+	"github.com/manuelarte/testcomments/analyzer/model"
 )
 
 const (
@@ -24,12 +24,12 @@ const (
 )
 
 func New() *analysis.Analyzer {
-	l := testcommentslint{}
+	l := testcomments{}
 
 	a := &analysis.Analyzer{
-		Name:     "testcommentslint",
+		Name:     "testcomments",
 		Doc:      "checks test follow standards",
-		URL:      "https://github.com/manuelarte/testcommentslint",
+		URL:      "https://github.com/manuelarte/testcomments",
 		Run:      l.run,
 		Requires: []*analysis.Analyzer{inspect.Analyzer},
 	}
@@ -51,7 +51,7 @@ func New() *analysis.Analyzer {
 }
 
 type (
-	testcommentslint struct {
+	testcomments struct {
 		equalityComparison equalityComparison
 		gotBeforeWant      bool
 		identifyFunction   bool
@@ -79,7 +79,7 @@ func (t tableDrivenFormat) getTableDrivenFormatPredicate() checks.TableDrivenFor
 }
 
 //nolint:gocognit // refactor later
-func (l *testcommentslint) run(pass *analysis.Pass) (any, error) {
+func (l *testcomments) run(pass *analysis.Pass) (any, error) {
 	insp, found := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !found {
 		//nolint:nilnil // impossible case.
