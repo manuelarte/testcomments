@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.0](https://github.com/manuelarte/testcomments/compare/v0.0.3...v0.1.0) (2026-03-16)
+
+
+### Features
+
+* lint also functions inside tests files that compare two structs ([#26](https://github.com/manuelarte/testcomments/issues/26)) ([58cecfe](https://github.com/manuelarte/testcomments/commit/58cecfe315848b72ec5d79e5522eb92fa809e76c))
+* lint also functions inside tests files that compare two structs ([#28](https://github.com/manuelarte/testcomments/issues/28)) ([be71d2c](https://github.com/manuelarte/testcomments/commit/be71d2cd57682d0bc32fa380a87e65e5b27c2e47))
+
 ## [0.0.3](https://github.com/manuelarte/testcomments/compare/v0.0.2...v0.0.3) (2026-02-16)
 
 
