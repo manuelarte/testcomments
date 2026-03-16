@@ -1,13 +1,13 @@
 package main
 
 type MyStruct struct {
-	id int
+	id   int
 	name string
 }
 
 func NewMyStruct(id int, name string) MyStruct {
 	return MyStruct{
-		id: id,
+		id:   id,
 		name: name,
 	}
 }
