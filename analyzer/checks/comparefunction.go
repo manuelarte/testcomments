@@ -3,7 +3,7 @@ package checks
 import (
 	"golang.org/x/tools/go/analysis"
 
-	"github.com/manuelarte/testcommentslint/analyzer/model"
+	"github.com/manuelarte/testcomments/analyzer/model"
 )
 
 // CompareFunction checks that custom struct comparison functions use cmp.Equal or cmp.Diff.
@@ -27,6 +27,6 @@ func (c CompareFunction) Check(pass *analysis.Pass, compareFunc model.CompareFun
 		Category: c.category,
 		Message:  "Use cmp.Equal or cmp.Diff for equality comparison",
 
-		URL: "https://github.com/manuelarte/testcommentslint/tree/main?tab=readme-ov-file#equality-comparison-and-diffs",
+		URL: "https://github.com/manuelarte/testcomments/tree/main?tab=readme-ov-file#equality-comparison-and-diffs",
 	})
 }

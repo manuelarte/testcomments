@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/tools/go/analysis"
 
-	"github.com/manuelarte/testcommentslint/analyzer/model"
+	"github.com/manuelarte/testcomments/analyzer/model"
 )
 
 const (

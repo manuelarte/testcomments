@@ -1,4 +1,4 @@
-module github.com/manuelarte/testcommentslint
+module github.com/manuelarte/testcomments
 
 go 1.25.0
 
