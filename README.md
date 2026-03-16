@@ -49,7 +49,7 @@ if !reflect.DeepEqual(got, want) {
 <!-- markdownlint-enable -->
 
 And lint that the newer [`cmp.Equal`][cmp-equal] or [`cmp.Diff`][cmp-diff] should be used.
-For more use cases and examples, check [equality-comparison](analyzer/testdata/src/equality_comparison).
+For more use cases and examples, check [equality-comparison](analyzer/testdata/src/reflect-deepequal).
 
 > [!NOTE]
 > Suggested Fix can't be supported since it could potentially imply adding go-cmp dependency

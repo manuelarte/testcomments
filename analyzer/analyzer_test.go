@@ -13,11 +13,14 @@ func TestAnalyzer(t *testing.T) {
 		patterns string
 		options  map[string]string
 	}{
-		"equality comparison": {
-			patterns: "equality_comparison",
+		"reflect-deepequal": {
+			patterns: "reflect-deepequal",
 			options: map[string]string{
 				IdentifyTheFunctionCHeck: "false",
 			},
+		},
+		"compare-functions": {
+			patterns: "compare-functions",
 		},
 		"got before want": {
 			patterns: "got_before_want",
@@ -46,9 +49,6 @@ func TestAnalyzer(t *testing.T) {
 				TableDrivenFormatCheckTypeName:    "map",
 				TableDrivenFormatCheckInlinedName: "false",
 			},
-		},
-		"compare_functions": {
-			patterns: "compare_functions",
 		},
 	}
 
