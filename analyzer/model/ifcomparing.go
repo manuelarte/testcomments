@@ -65,7 +65,7 @@ func NewIfComparingResult(
 	}
 
 	// Try to handle simple inlined assignment case (e.g., if got := func(); got != want)
-	if isSimpleAssignmentInit(ifStmt.Init) {
+	if isSimpleAssignmentInit(importGroup, ifStmt.Init) {
 		assignStmt, _ := ifStmt.Init.(*ast.AssignStmt)
 
 		var inlinedParams []*ast.Ident
@@ -272,7 +272,7 @@ func getGotWantParams(
 
 // isSimpleAssignmentInit checks if the init statement is a simple assignment
 // (not a cmp.Diff call). For example: got := double(1).
-func isSimpleAssignmentInit(init ast.Stmt) bool {
+func isSimpleAssignmentInit(importGroup ImportGroup, init ast.Stmt) bool {
 	assignStmt, ok := init.(*ast.AssignStmt)
 	if !ok {
 		return false
@@ -296,10 +296,11 @@ func isSimpleAssignmentInit(init ast.Stmt) bool {
 		return true
 	}
 
-	// Check if it's specifically cmp.Diff with 2 arguments
-	if len(callExpr.Args) == 2 {
+	// Check if it's specifically cmp.Diff with more than 1 argument
+
+	if goCmpImportName, hasCmpImported := importGroup.GoCmpImportName(); hasCmpImported && len(callExpr.Args) > 1 {
 		ident, isIdent := selectorExpr.X.(*ast.Ident)
-		if isIdent && ident.Name == "cmp" && selectorExpr.Sel.Name == "Diff" {
+		if isIdent && ident.Name == goCmpImportName && selectorExpr.Sel.Name == "Diff" {
 			// This is a cmp.Diff call, not a simple assignment
 			return false
 		}

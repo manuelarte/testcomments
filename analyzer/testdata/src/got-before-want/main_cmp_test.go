@@ -1,7 +1,10 @@
 package main
 
 import (
+	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func double(a int) int {
@@ -63,4 +66,17 @@ func TestTableDrivenInlinedDouble(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestShouldNotGetTriggered(t *testing.T) {
+	want := []string{"John", "Doe"}
+	got := splitString("John Doe")
+
+	if diff := cmp.Diff(got, want, ""); diff != "" {
+		t.Errorf("diff (-got +want):\n%s", diff)
+	}
+}
+
+func splitString(fullName string) []string {
+	return strings.Split(fullName, " ")
 }
