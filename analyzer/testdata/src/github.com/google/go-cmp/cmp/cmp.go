@@ -1,6 +1,6 @@
 package cmp
 
-func Diff(x, y any) string {
+func Diff(x, y any, options ...any) string {
 	return ""
 }
 
