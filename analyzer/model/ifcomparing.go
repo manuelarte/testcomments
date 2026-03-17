@@ -52,8 +52,8 @@ func NewIfComparingResult(
 
 	if ifStmt.Init == nil {
 		// case got != equal and !reflect.DeepEqual or !cmp.Equal
-		got, want, ok := getGotWantParams(importGroup, testedFunctionParams, ifStmt.Cond)
-		if !ok {
+		got, want, isValid := getGotWantParams(importGroup, testedFunctionParams, ifStmt.Cond)
+		if !isValid {
 			return nil, false
 		}
 
@@ -62,6 +62,28 @@ func NewIfComparingResult(
 			got:    got,
 			want:   want,
 		}, true
+	}
+
+	// Try to handle simple inlined assignment case (e.g., if got := func(); got != want)
+	if isSimpleAssignmentInit(ifStmt.Init) {
+		assignStmt, _ := ifStmt.Init.(*ast.AssignStmt)
+
+		var inlinedParams []*ast.Ident
+
+		for _, expr := range assignStmt.Lhs {
+			if ident, ok := expr.(*ast.Ident); ok {
+				inlinedParams = append(inlinedParams, ident)
+			}
+		}
+
+		got, want, ok := getGotWantParams(importGroup, inlinedParams, ifStmt.Cond)
+		if ok {
+			return ComparingParamsIfStmt{
+				ifStmt: ifStmt,
+				got:    got,
+				want:   want,
+			}, true
+		}
 	}
 
 	// case cmp.Diff
@@ -246,4 +268,42 @@ func getGotWantParams(
 	}
 
 	return nil, nil, false
+}
+
+// isSimpleAssignmentInit checks if the init statement is a simple assignment
+// (not a cmp.Diff call). For example: got := double(1).
+func isSimpleAssignmentInit(init ast.Stmt) bool {
+	assignStmt, ok := init.(*ast.AssignStmt)
+	if !ok {
+		return false
+	}
+
+	if len(assignStmt.Rhs) != 1 {
+		return false
+	}
+
+	// Check that it's not a function call to cmp.Diff
+	callExpr, ok := assignStmt.Rhs[0].(*ast.CallExpr)
+	if !ok {
+		// It's a simple assignment but not a call expr (e.g., got := variable)
+		return true
+	}
+
+	// Check if the call is to cmp.Diff
+	selectorExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
+	if !ok {
+		// Not a selector expression, so it's not cmp.Diff
+		return true
+	}
+
+	// Check if it's specifically cmp.Diff with 2 arguments
+	if len(callExpr.Args) == 2 {
+		ident, isIdent := selectorExpr.X.(*ast.Ident)
+		if isIdent && ident.Name == "cmp" && selectorExpr.Sel.Name == "Diff" {
+			// This is a cmp.Diff call, not a simple assignment
+			return false
+		}
+	}
+
+	return true
 }

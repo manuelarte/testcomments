@@ -31,7 +31,11 @@ func NewTestPartBlock(
 ) (TestPartBlock, bool) {
 	testedFunc, isTestedFunc := NewTestedCallExpr(prev)
 	if !isTestedFunc {
-		return TestPartBlock{}, false
+		// Try to get the tested function from the if statement's init (inlined assignment)
+		testedFunc, isTestedFunc = NewTestedCallExpr(ifStmt)
+		if !isTestedFunc {
+			return TestPartBlock{}, false
+		}
 	}
 
 	ifComparing, isComparingIfStmt := NewIfComparingResult(importGroup, testedFunc.Params(), ifStmt)

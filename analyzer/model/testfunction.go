@@ -273,10 +273,20 @@ func newTableDrivenInfo(testVar string, funcDecl *ast.FuncDecl) *TableDrivenInfo
 // 1. Statement is an *ast.AssignStmt.
 // 2. Right hand side is a *ast.CallExpr
 // 3. Left hand side is a list of *ast.Ident, containing the got parameter.
+// Can also handle an *ast.IfStmt where the assignment is in the Init field (inlined case).
 func NewTestedCallExpr(stmt ast.Stmt) (TestedCallExpr, bool) {
 	var callExpr *ast.CallExpr
 
 	params := make([]*ast.Ident, 0)
+
+	// Handle IfStmt with inlined assignment (e.g., if got := func(); got != want)
+	if ifStmt, isIfStmt := stmt.(*ast.IfStmt); isIfStmt {
+		if ifStmt.Init == nil {
+			return TestedCallExpr{}, false
+		}
+
+		stmt = ifStmt.Init
+	}
 
 	assignStmt, isAssignStmt := stmt.(*ast.AssignStmt)
 	if !isAssignStmt {
