@@ -103,6 +103,6 @@ func TestCmpDiffValidFormat(t *testing.T) {
 	}
 	got := double(1)
 	if diff := cmp.Diff(got, want); diff != "" {
-		t.Errorf("diff -want +got:\n%s", diff) // want `Failure messages should include the name of the function that failed`
+		t.Errorf("diff -got +want:\n%s", diff) // want `Failure messages should include the name of the function that failed`
 	}
 }

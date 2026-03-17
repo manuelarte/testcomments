@@ -19,11 +19,11 @@ func TestAnalyzer(t *testing.T) {
 				IdentifyTheFunctionCHeck: "false",
 			},
 		},
-		"compare-functions": {
+		"compare functions": {
 			patterns: "compare-functions",
 		},
 		"got before want": {
-			patterns: "got_before_want",
+			patterns: "got-before-want",
 			options: map[string]string{
 				EqualityComparisonReflectCheckName: "false",
 				GotBeforeWantCheck:                 "true",
@@ -31,7 +31,7 @@ func TestAnalyzer(t *testing.T) {
 			},
 		},
 		"identify function": {
-			patterns: "identify_function",
+			patterns: "identify-function",
 			options: map[string]string{
 				EqualityComparisonReflectCheckName: "false",
 			},

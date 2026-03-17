@@ -41,3 +41,26 @@ func TestTableDrivenDouble(t *testing.T) {
 		})
 	}
 }
+
+func TestTableDrivenInlinedDouble(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		want int
+	}{
+		{
+			name: "simple case",
+			want: 2,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := double(1); got != test.want {
+				t.Errorf("want %v, got %v", test.want, got) // want `Test outputs should output the actual value that the function returned before printing the value that was expected`
+			}
+		})
+	}
+}
