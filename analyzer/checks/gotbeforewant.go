@@ -35,6 +35,12 @@ func (c GotBeforeWant) Check(pass *analysis.Pass, testFunc model.TestFunction) {
 		got := ifComparing.Got()
 		want := ifComparing.Want()
 
+		tErrorCallArgs := testBlock.TErrorCallExpr().GetArgs()
+		// can't tell whether got is before want if there aren't, at least, 2 arguments
+		if len(tErrorCallArgs) < 2 {
+			continue
+		}
+
 		for i, arg := range testBlock.TErrorCallExpr().GetArgs() {
 			if ident, isIdent := arg.(*ast.Ident); isIdent && ident.Name == got.Name {
 				gotIndex = i

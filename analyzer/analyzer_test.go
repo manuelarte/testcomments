@@ -50,6 +50,9 @@ func TestAnalyzer(t *testing.T) {
 				TableDrivenFormatCheckInlinedName: "false",
 			},
 		},
+		"special cases": {
+			patterns: "special-cases",
+		},
 	}
 
 	for name, test := range testCases {
