@@ -167,10 +167,13 @@ linters:
       - std-error-handling
     rules:
       - linters:
+          #keep-sorted start
           - errcheck
           - funlen
+          - gocognit
           - goconst
           - gosec
+          #keep-sorted end
         path: _test\.go
 
 issues:
