@@ -216,8 +216,9 @@ func isComparing(importGroup ImportGroup, block *ast.BlockStmt, param1, param2 s
 			}
 
 			// Check for cmp.Equal or cmp.Diff
-			if importGroup.GoCmp != nil {
-				if isGoCmpEqual(importName(importGroup.GoCmp), se) || isGoCmpDiff(importName(importGroup.GoCmp), se) {
+			goCmpImportName, isGoCmpImported := importGroup.GoCmpImportName()
+			if isGoCmpImported {
+				if isGoCmpEqual(goCmpImportName, se) || isGoCmpDiff(goCmpImportName, se) {
 					usesCmp = true
 
 					return false // Stop inspection
@@ -225,7 +226,8 @@ func isComparing(importGroup ImportGroup, block *ast.BlockStmt, param1, param2 s
 			}
 
 			// Check for reflect.DeepEqual
-			if importGroup.Reflect != nil && isReflectEqual(importName(importGroup.Reflect), se) {
+			reflectImportName, isReflectImported := importGroup.ReflectImportName()
+			if isReflectImported && isReflectEqual(reflectImportName, se) {
 				if len(node.Args) == 2 {
 					arg1 := astExprToString(node.Args[0])
 

@@ -108,13 +108,7 @@ func (l *testcomments) run(pass *analysis.Pass) (any, error) {
 
 		switch node := n.(type) {
 		case *ast.ImportSpec:
-			if model.IsReflectImport(node) {
-				importGroup.Reflect = node
-			}
-
-			if model.IsGoCmpImport(node) {
-				importGroup.GoCmp = node
-			}
+			importGroup = importGroup.NewWithImportSpec(node)
 		case *ast.FuncDecl:
 			if l.equalityComparison.equal {
 				if compareFunc, isCompareFunc := model.NewCompareFunction(importGroup, node); isCompareFunc {

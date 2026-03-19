@@ -24,26 +24,6 @@ type (
 		tableDrivenInfo *TableDrivenInfo
 	}
 
-	// ImportGroup contains the imports that are important for the test.
-	ImportGroup struct {
-		// GoCmp "go-cmp" import spec. Nil if "go-cmp" is not imported.
-		GoCmp *ast.ImportSpec
-		// Reflect "reflect" import spec. Nil if "reflect" is not imported.
-		Reflect *ast.ImportSpec
-	}
-
-	// TableDrivenInfo contains information about table-driven test.
-	TableDrivenInfo struct {
-		// Range that iterates over the tests and call t.Run
-		Range *ast.RangeStmt
-		// FormatType is either "map" or "slice".
-		FormatType string
-		// Inlined is true if the table is declared in the range statement.
-		Inlined bool
-		// Block is the body of the t.Run function.
-		Block *ast.BlockStmt
-	}
-
 	// TestedCallExpr contains the actual call to the function tested.
 	// got := MyFunction(in) <- TestedCallExpr
 	// if got != want {
@@ -90,19 +70,19 @@ func (t TestFunction) GetActualTestBlockStmt() *ast.BlockStmt {
 	return t.funcDecl.Body
 }
 
-// GetTestVar returns the name of the testing.T parameter.
-func (t TestFunction) GetTestVar() string {
+// TestVar returns the name of the testing.T parameter.
+func (t TestFunction) TestVar() string {
 	return t.testVar
 }
 
-func (t TestFunction) GetTableDrivenInfo() *TableDrivenInfo {
+func (t TestFunction) TableDrivenInfo() *TableDrivenInfo {
 	return t.tableDrivenInfo
 }
 
 // TestPartBlocks returns all the tested blocks of the test function.
 func (t TestFunction) TestPartBlocks() []TestPartBlock {
 	blStmt := t.GetActualTestBlockStmt()
-	testVar := t.GetTestVar()
+	testVar := t.TestVar()
 
 	toReturn := make([]TestPartBlock, 0)
 
@@ -134,139 +114,6 @@ func (t TestFunction) TestPartBlocks() []TestPartBlock {
 	}
 
 	return toReturn
-}
-
-func (i ImportGroup) ReflectImportName() (string, bool) {
-	if i.Reflect == nil {
-		return "", false
-	}
-
-	return importName(i.Reflect), true
-}
-
-func (i ImportGroup) GoCmpImportName() (string, bool) {
-	if i.GoCmp == nil {
-		return "", false
-	}
-
-	return importName(i.GoCmp), true
-}
-
-// newTableDrivenInfo returns information about a table driven test or nil if it's not a table-driven test.
-//
-//nolint:gocognit,funlen // refactor later
-func newTableDrivenInfo(testVar string, funcDecl *ast.FuncDecl) *TableDrivenInfo {
-	var stmts []ast.Stmt
-	if funcDecl.Body != nil {
-		stmts = funcDecl.Body.List
-	}
-
-	identifiers := make(map[string]*ast.CompositeLit)
-
-	var rangeStmt *ast.RangeStmt
-
-	for _, stmt := range stmts {
-		switch node := stmt.(type) {
-		// possible identifiers that can be used in a table-driven test
-		case *ast.AssignStmt:
-			if len(node.Rhs) != 1 {
-				continue
-			}
-
-			mapOrSliceCompositeLit := isMapOrSliceCompositeLit(node.Rhs[0])
-			if mapOrSliceCompositeLit == nil {
-				continue
-			}
-
-			if len(node.Lhs) != 1 {
-				continue
-			}
-
-			if ident, ok := node.Lhs[0].(*ast.Ident); ok {
-				identifiers[ident.Name] = mapOrSliceCompositeLit
-			}
-		// possible for loops that can be used in a table-driven test
-		case *ast.RangeStmt:
-			// the next instruction in a range stmt needs to be a t.Run
-			if node.Body != nil && len(node.Body.List) != 1 {
-				continue
-			}
-
-			exprStmt, isExprStmt := node.Body.List[0].(*ast.ExprStmt)
-			if !isExprStmt {
-				continue
-			}
-
-			callExpr, isCallExpr := exprStmt.X.(*ast.CallExpr)
-			if !isCallExpr {
-				continue
-			}
-
-			selectorExpr, isSelectorExpr := callExpr.Fun.(*ast.SelectorExpr)
-			if !isSelectorExpr {
-				continue
-			}
-
-			//nolint:lll // long line
-			if ident, isIdent := selectorExpr.X.(*ast.Ident); !isIdent || ident.Name != testVar || selectorExpr.Sel.Name != "Run" {
-				continue
-			}
-
-			funcLit, isFuncLit := callExpr.Args[1].(*ast.FuncLit)
-			if !isFuncLit {
-				continue
-			}
-			// from here, it's a table-driven test, we need to check whether is map/slice or inlined
-			rangeStmt = node
-
-			switch n := node.X.(type) {
-			case *ast.Ident:
-				// identifier must be declared before and be used as range
-				if _, isDeclaredBefore := identifiers[n.Name]; !isDeclaredBefore {
-					continue
-				}
-
-				// returns the second parameter of t.Run with the function
-				if len(callExpr.Args) != 2 {
-					continue
-				}
-
-				// is non-inlined and the param contains whether is map/slice
-				formatType := "map"
-				if _, isSlice := identifiers[n.Name].Type.(*ast.ArrayType); isSlice {
-					formatType = "slice"
-				}
-
-				return &TableDrivenInfo{
-					Range:      rangeStmt,
-					FormatType: formatType,
-					Inlined:    false,
-					Block:      funcLit.Body,
-				}
-			case *ast.CompositeLit:
-				// is inlined
-				if isMapOrSliceCompositeLit(n) == nil {
-					continue
-				}
-
-				formatType := "map"
-				if _, isSlice := n.Type.(*ast.ArrayType); isSlice {
-					formatType = "slice"
-				}
-
-				return &TableDrivenInfo{
-					Range:      rangeStmt,
-					FormatType: formatType,
-					Inlined:    true,
-					Block:      funcLit.Body,
-				}
-			default:
-				continue
-			}
-		}
-	}
-
-	return nil
 }
 
 // NewTestedCallExpr creates a testedFuncStmt after checking that the stmt is a typical function call.
