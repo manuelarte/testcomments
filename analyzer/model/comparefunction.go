@@ -1,6 +1,10 @@
 package model
 
-import "go/ast"
+import (
+	"go/ast"
+	"go/token"
+	"strings"
+)
 
 var (
 	_ CompareFunction = new(BooleanCompareFunction)
@@ -43,13 +47,13 @@ type (
 
 // NewCompareFunction returns a new CompareFunction based on the funcDecl.
 // It detects functions that compare two structs by checking the signature.
-func NewCompareFunction(_ ImportGroup, funcDecl *ast.FuncDecl) (CompareFunction, bool) {
-	booleanCompareFunction, isBooleanCompareFunction := newBooleanCompareFunction(funcDecl)
+func NewCompareFunction(importGroup ImportGroup, funcDecl *ast.FuncDecl) (CompareFunction, bool) {
+	booleanCompareFunction, isBooleanCompareFunction := newBooleanCompareFunction(importGroup, funcDecl)
 	if isBooleanCompareFunction {
 		return booleanCompareFunction, true
 	}
 
-	testingsTCompareFunction, isTestingsTCompareFunction := newTestingsTCompareFunction(funcDecl)
+	testingsTCompareFunction, isTestingsTCompareFunction := newTestingsTCompareFunction(importGroup, funcDecl)
 	if isTestingsTCompareFunction {
 		return testingsTCompareFunction, true
 	}
@@ -81,7 +85,7 @@ func (t TestingsTCompareFunction) Param2() string {
 	return t.param2
 }
 
-func newBooleanCompareFunction(funcDecl *ast.FuncDecl) (BooleanCompareFunction, bool) {
+func newBooleanCompareFunction(importGroup ImportGroup, funcDecl *ast.FuncDecl) (BooleanCompareFunction, bool) {
 	if funcDecl.Type.Results == nil {
 		return BooleanCompareFunction{}, false
 	}
@@ -123,6 +127,10 @@ func newBooleanCompareFunction(funcDecl *ast.FuncDecl) (BooleanCompareFunction, 
 		return BooleanCompareFunction{}, false
 	}
 
+	if !isComparing(importGroup, funcDecl.Body, param1, param2) {
+		return BooleanCompareFunction{}, false
+	}
+
 	return BooleanCompareFunction{
 		funcDecl: funcDecl,
 		param1:   param1,
@@ -130,7 +138,7 @@ func newBooleanCompareFunction(funcDecl *ast.FuncDecl) (BooleanCompareFunction, 
 	}, true
 }
 
-func newTestingsTCompareFunction(funcDecl *ast.FuncDecl) (TestingsTCompareFunction, bool) {
+func newTestingsTCompareFunction(importGroup ImportGroup, funcDecl *ast.FuncDecl) (TestingsTCompareFunction, bool) {
 	if funcDecl.Type.Results != nil {
 		return TestingsTCompareFunction{}, false
 	}
@@ -179,11 +187,77 @@ func newTestingsTCompareFunction(funcDecl *ast.FuncDecl) (TestingsTCompareFuncti
 		return TestingsTCompareFunction{}, false
 	}
 
+	if !isComparing(importGroup, funcDecl.Body, param1, param2) {
+		return TestingsTCompareFunction{}, false
+	}
+
 	return TestingsTCompareFunction{
 		funcDecl: funcDecl,
 		param1:   param1,
 		param2:   param2,
 	}, true
+}
+
+//nolint:gocognit
+func isComparing(importGroup ImportGroup, block *ast.BlockStmt, param1, param2 string) bool {
+	var isLintableComparison, usesCmp bool
+
+	ast.Inspect(block, func(n ast.Node) bool {
+		// If we already found a cmp usage, we can stop inspecting.
+		if usesCmp {
+			return false
+		}
+
+		switch node := n.(type) {
+		case *ast.CallExpr:
+			se, ok := node.Fun.(*ast.SelectorExpr)
+			if !ok {
+				return true
+			}
+
+			// Check for cmp.Equal or cmp.Diff
+			if importGroup.GoCmp != nil {
+				if isGoCmpEqual(importName(importGroup.GoCmp), se) || isGoCmpDiff(importName(importGroup.GoCmp), se) {
+					usesCmp = true
+
+					return false // Stop inspection
+				}
+			}
+
+			// Check for reflect.DeepEqual
+			if importGroup.Reflect != nil && isReflectEqual(importName(importGroup.Reflect), se) {
+				if len(node.Args) == 2 {
+					arg1 := astExprToString(node.Args[0])
+
+					arg2 := astExprToString(node.Args[1])
+					if (isParamOrFieldOfParam(arg1, param1) && isParamOrFieldOfParam(arg2, param2)) ||
+						(isParamOrFieldOfParam(arg1, param2) && isParamOrFieldOfParam(arg2, param1)) {
+						isLintableComparison = true
+					}
+				}
+			}
+
+		case *ast.BinaryExpr:
+			// Check for direct comparison == or !=
+			if node.Op == token.EQL || node.Op == token.NEQ {
+				arg1 := astExprToString(node.X)
+
+				arg2 := astExprToString(node.Y)
+				if (isParamOrFieldOfParam(arg1, param1) && isParamOrFieldOfParam(arg2, param2)) ||
+					(isParamOrFieldOfParam(arg1, param2) && isParamOrFieldOfParam(arg2, param1)) {
+					isLintableComparison = true
+				}
+			}
+		}
+
+		return true
+	})
+
+	return isLintableComparison && !usesCmp
+}
+
+func isParamOrFieldOfParam(arg, param string) bool {
+	return arg == param || strings.HasPrefix(arg, param+".")
 }
 
 func sameStructType(type1, type2 ast.Expr) (string, bool) {
