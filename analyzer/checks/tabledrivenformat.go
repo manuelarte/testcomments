@@ -51,8 +51,8 @@ func OfTypeAndInline(formatType TableDrivenFormatType, inline bool) (TableDriven
 	expectedMessage := fmt.Sprintf("Expected %s-%s table driven test", formatType, inlinedNonInlinedMessage)
 
 	return func(testFunc model.TestFunction) *analysis.Diagnostic {
-		info := testFunc.GetTableDrivenInfo()
-		if testFunc.GetTableDrivenInfo().FormatType != string(formatType) || info.Inlined != inline {
+		info := testFunc.TableDrivenInfo()
+		if testFunc.TableDrivenInfo().FormatType != string(formatType) || info.Inlined != inline {
 			return &analysis.Diagnostic{
 				Pos:     info.Range.Pos(),
 				End:     info.Range.End(),
@@ -77,7 +77,7 @@ func NewTableDrivenFormat(pred TableDrivenFormatPredicate) (TableDrivenFormat, e
 }
 
 func (c TableDrivenFormat) Check(pass *analysis.Pass, testFunc model.TestFunction) {
-	info := testFunc.GetTableDrivenInfo()
+	info := testFunc.TableDrivenInfo()
 	if info == nil {
 		return
 	}

@@ -114,13 +114,7 @@ func Compare(t *testing.T, a, b MyStruct) {
 			ast.Inspect(file, func(n ast.Node) bool {
 				switch x := n.(type) {
 				case *ast.ImportSpec:
-					if IsReflectImport(x) {
-						importGroup.Reflect = x
-					}
-
-					if IsGoCmpImport(x) {
-						importGroup.GoCmp = x
-					}
+					importGroup = importGroup.NewWithImportSpec(x)
 				case *ast.FuncDecl:
 					funcDecl = x
 				}
