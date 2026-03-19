@@ -33,6 +33,13 @@ func areTwoEqual(a MyStruct, b MyStruct) bool { // want `Use cmp.Equal or cmp.Di
 	return a.Name == b.Name && a.Surname == b.Surname
 }
 
+func areMyStructEqual(a MyStruct, b MyStruct) bool { // want `Use cmp.Equal or cmp.Diff for equality comparison`
+	sameName := a.Name == b.Name
+	sameSurname := a.Surname == b.Surname
+
+	return sameName && sameSurname
+}
+
 func assertEqual(t *testing.T, a, b MyStruct) {
 	t.Helper()
 
