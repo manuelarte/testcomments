@@ -2,7 +2,10 @@ package model
 
 import "go/ast"
 
-var _ CompareFunction = new(BooleanCompareFunction)
+var (
+	_ CompareFunction = new(BooleanCompareFunction)
+	_ CompareFunction = new(TestingsTCompareFunction)
+)
 
 type (
 	// CompareFunction holds function that is used to compare two structs
@@ -26,6 +29,16 @@ type (
 		param1   string
 		param2   string
 	}
+
+	// TestingsTCompareFunction holds compare functions that have testing.T as first parameter
+	//   - myFunction(t *testing.T, x MyStruct, y MyStruct)
+	//   - myFunction(t *testing.T, x, y MyStruct)
+	TestingsTCompareFunction struct {
+		// funcDecl the original function declaration.
+		funcDecl *ast.FuncDecl
+		param1   string
+		param2   string
+	}
 )
 
 // NewCompareFunction returns a new CompareFunction based on the funcDecl.
@@ -34,6 +47,11 @@ func NewCompareFunction(_ ImportGroup, funcDecl *ast.FuncDecl) (CompareFunction,
 	booleanCompareFunction, isBooleanCompareFunction := newBooleanCompareFunction(funcDecl)
 	if isBooleanCompareFunction {
 		return booleanCompareFunction, true
+	}
+
+	testingsTCompareFunction, isTestingsTCompareFunction := newTestingsTCompareFunction(funcDecl)
+	if isTestingsTCompareFunction {
+		return testingsTCompareFunction, true
 	}
 
 	return nil, false
@@ -49,6 +67,18 @@ func (b BooleanCompareFunction) Param1() string {
 
 func (b BooleanCompareFunction) Param2() string {
 	return b.param2
+}
+
+func (t TestingsTCompareFunction) FuncDecl() *ast.FuncDecl {
+	return t.funcDecl
+}
+
+func (t TestingsTCompareFunction) Param1() string {
+	return t.param1
+}
+
+func (t TestingsTCompareFunction) Param2() string {
+	return t.param2
 }
 
 func newBooleanCompareFunction(funcDecl *ast.FuncDecl) (BooleanCompareFunction, bool) {
@@ -94,6 +124,62 @@ func newBooleanCompareFunction(funcDecl *ast.FuncDecl) (BooleanCompareFunction, 
 	}
 
 	return BooleanCompareFunction{
+		funcDecl: funcDecl,
+		param1:   param1,
+		param2:   param2,
+	}, true
+}
+
+func newTestingsTCompareFunction(funcDecl *ast.FuncDecl) (TestingsTCompareFunction, bool) {
+	if funcDecl.Type.Results != nil {
+		return TestingsTCompareFunction{}, false
+	}
+
+	params := funcDecl.Type.Params
+	if params == nil || len(params.List) < 2 {
+		return TestingsTCompareFunction{}, false
+	}
+
+	// Check that the first parameter is *testing.T
+	if !isTestingTField(params.List[0]) {
+		return TestingsTCompareFunction{}, false
+	}
+
+	var param1, param2 string
+
+	// Check the remaining parameters (should be 2 more parameters total, or 1 parameter with 2 names)
+	switch len(params.List) {
+	case 2:
+		// Case: t *testing.T, a, b MyStruct (one field with two names)
+		param := params.List[1]
+		if param.Type == nil {
+			return TestingsTCompareFunction{}, false
+		}
+
+		if len(param.Names) != 2 {
+			return TestingsTCompareFunction{}, false
+		}
+
+		param1 = param.Names[0].Name
+		param2 = param.Names[1].Name
+	case 3:
+		// Case: t *testing.T, a MyStruct, b MyStruct (two fields with one name each)
+		if len(params.List[1].Names) != 1 || len(params.List[2].Names) != 1 {
+			return TestingsTCompareFunction{}, false
+		}
+
+		structType, isSame := sameStructType(params.List[1].Type, params.List[2].Type)
+		if !isSame || structType == "error" {
+			return TestingsTCompareFunction{}, false
+		}
+
+		param1 = params.List[1].Names[0].Name
+		param2 = params.List[2].Names[0].Name
+	default:
+		return TestingsTCompareFunction{}, false
+	}
+
+	return TestingsTCompareFunction{
 		funcDecl: funcDecl,
 		param1:   param1,
 		param2:   param2,

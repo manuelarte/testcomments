@@ -25,7 +25,7 @@ func TestAssertTwoStructs(t *testing.T) {
 	assertEqual(t, a, b)
 }
 
-func areEqual(a, b MyStruct) bool { // want `Use cmp.Equal or cmp.Diff for equality comparison`
+func areEqual(a, b MyStruct) bool {
 	return areTwoEqual(a, b)
 }
 
@@ -39,7 +39,7 @@ func assertEqual(t *testing.T, a, b MyStruct) {
 	assertTwoEqual(t, a, b)
 }
 
-func assertTwoEqual(t *testing.T, a MyStruct, b MyStruct) {
+func assertTwoEqual(t *testing.T, a MyStruct, b MyStruct) { // want `Use cmp.Equal or cmp.Diff for equality comparison`
 	t.Helper()
 
 	if a.Name != b.Name || a.Surname != b.Surname {
