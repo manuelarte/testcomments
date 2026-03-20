@@ -17,7 +17,8 @@ go install github.com/manuelarte/testcomments@latest
 And then use it with
 
 ```bash
-testcomments [-equality-comparison=true|false] [-got-before-want=true|false] [-identify-function=true|false]
+testcomments [-equality-comparison.reflect=true|false] [-equality-comparison.equal=true|false]
+[-got-before-want=true|false] [-identify-function=true|false]
 [-table-driven-format.type=map|slice] [-table-driven-format.inlined=true|false] ./...
 ```
 
@@ -61,7 +62,7 @@ This linter detects helper functions like:
 
 ```go
 func areEqual(a, b MyStruct) bool {
- ...
+ return a.Name && b.Name && a.Surname == b.Surname
 }
 ```
 
