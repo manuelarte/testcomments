@@ -62,7 +62,7 @@ This linter detects helper functions like:
 
 ```go
 func areEqual(a, b MyStruct) bool {
- return a.Name && b.Name && a.Surname == b.Surname
+	return a.Name && b.Name && a.Surname == b.Surname
 }
 ```
 
