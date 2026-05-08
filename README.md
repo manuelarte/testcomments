@@ -44,7 +44,7 @@ This linter detects the expression:
 <!-- markdownlint-disable -->
 ```go
 if !reflect.DeepEqual(got, want) {
-    t.Errorf("MyFunction got %v, want %v", got, want)
+	t.Errorf("MyFunction got %v, want %v", got, want)
 }
 ```
 <!-- markdownlint-enable -->
@@ -62,7 +62,7 @@ This linter detects helper functions like:
 
 ```go
 func areEqual(a, b MyStruct) bool {
- return a.Name && b.Name && a.Surname == b.Surname
+	return a.Name && b.Name && a.Surname == b.Surname
 }
 ```
 
