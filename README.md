@@ -44,7 +44,7 @@ This linter detects the expression:
 <!-- markdownlint-disable -->
 ```go
 if !reflect.DeepEqual(got, want) {
-    t.Errorf("MyFunction got %v, want %v", got, want)
+	t.Errorf("MyFunction got %v, want %v", got, want)
 }
 ```
 <!-- markdownlint-enable -->
