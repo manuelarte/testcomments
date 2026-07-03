@@ -1,7 +1,6 @@
 # Test Comments Lint
 
 [![CI](https://github.com/manuelarte/testcomments/actions/workflows/ci.yml/badge.svg)](https://github.com/manuelarte/testcomments/actions/workflows/ci.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/manuelarte/testcomments)](https://goreportcard.com/report/github.com/manuelarte/testcomments)
 ![version](https://img.shields.io/github/v/release/manuelarte/testcomments)
 
 Go Lint that follows standards described in [TestComments](https://go.dev/wiki/TestComments).
