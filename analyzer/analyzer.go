@@ -94,7 +94,7 @@ func (l *testcomments) run(pass *analysis.Pass) (any, error) {
 
 	var (
 		tbfCheck         = checks.NewTableDrivenFormat(l.tableDrivenFormat.getTableDrivenFormatPredicate())
-		compreFunction   = checks.NewCompareFunction()
+		compareFunction  = checks.NewCompareFunction()
 		reflectDeepEqual = checks.NewReflectDeepEqual()
 		gotBeforeWant    = checks.NewGotBeforeWant()
 		identifyFunction = checks.NewIdentifyFunction()
@@ -114,7 +114,7 @@ func (l *testcomments) run(pass *analysis.Pass) (any, error) {
 		case *ast.FuncDecl:
 			if l.equalityComparison.equal {
 				if compareFunc, isCompareFunc := model.NewCompareFunction(importGroup, node); isCompareFunc {
-					compreFunction.Check(pass, compareFunc)
+					compareFunction.Check(pass, compareFunc)
 
 					return
 				}
