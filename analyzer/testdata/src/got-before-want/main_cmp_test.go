@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func double(a int) int {
@@ -72,7 +73,7 @@ func TestShouldNotGetTriggered(t *testing.T) {
 	want := []string{"John", "Doe"}
 	got := splitString("John Doe")
 
-	if diff := cmp.Diff(got, want, ""); diff != "" {
+	if diff := cmp.Diff(got, want, cmpopts.IgnoreTypes("")); diff != "" {
 		t.Errorf("diff (-got +want):\n%s", diff)
 	}
 }
