@@ -10,7 +10,7 @@ import (
 	"github.com/manuelarte/testcomments/analyzer/model"
 )
 
-// IdentifyFunction check that the failure messages in t.Errorf/Fatalf contains the function name.
+// IdentifyFunction check that the failure messages in t.Errorf/Fatalf contain the function name.
 type IdentifyFunction struct {
 	category string
 }

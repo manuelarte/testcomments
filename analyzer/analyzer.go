@@ -2,7 +2,6 @@
 package analyzer
 
 import (
-	"fmt"
 	"go/ast"
 	"strings"
 
@@ -91,12 +90,15 @@ func (l *testcomments) run(pass *analysis.Pass) (any, error) {
 		(*ast.FuncDecl)(nil),
 	}
 
-	tbfCheck, err := checks.NewTableDrivenFormat(l.tableDrivenFormat.getTableDrivenFormatPredicate())
-	if err != nil {
-		return nil, fmt.Errorf("error creating table driven format checker: %w", err)
-	}
-
 	var importGroup model.ImportGroup
+
+	var (
+		tbfCheck         = checks.NewTableDrivenFormat(l.tableDrivenFormat.getTableDrivenFormatPredicate())
+		compareFunction  = checks.NewCompareFunction()
+		reflectDeepEqual = checks.NewReflectDeepEqual()
+		gotBeforeWant    = checks.NewGotBeforeWant()
+		identifyFunction = checks.NewIdentifyFunction()
+	)
 
 	insp.Preorder(nodeFilter, func(n ast.Node) {
 		// Only process _test.go files
@@ -112,7 +114,7 @@ func (l *testcomments) run(pass *analysis.Pass) (any, error) {
 		case *ast.FuncDecl:
 			if l.equalityComparison.equal {
 				if compareFunc, isCompareFunc := model.NewCompareFunction(importGroup, node); isCompareFunc {
-					checks.NewCompareFunction().Check(pass, compareFunc)
+					compareFunction.Check(pass, compareFunc)
 
 					return
 				}
@@ -122,15 +124,15 @@ func (l *testcomments) run(pass *analysis.Pass) (any, error) {
 				tbfCheck.Check(pass, testFunc)
 
 				if l.equalityComparison.reflect {
-					checks.NewReflectDeepEqual().Check(pass, testFunc)
+					reflectDeepEqual.Check(pass, testFunc)
 				}
 
 				if l.gotBeforeWant {
-					checks.NewGotBeforeWant().Check(pass, testFunc)
+					gotBeforeWant.Check(pass, testFunc)
 				}
 
 				if l.identifyFunction {
-					checks.NewIdentifyFunction().Check(pass, testFunc)
+					identifyFunction.Check(pass, testFunc)
 				}
 
 				return

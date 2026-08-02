@@ -65,7 +65,7 @@ func OfTypeAndInline(formatType TableDrivenFormatType, inline bool) (TableDriven
 }
 
 // NewTableDrivenFormat creates a new TableDrivenFormat.
-func NewTableDrivenFormat(pred TableDrivenFormatPredicate) (TableDrivenFormat, error) {
+func NewTableDrivenFormat(pred TableDrivenFormatPredicate) TableDrivenFormat {
 	if pred == nil {
 		pred = AlwaysValid()
 	}
@@ -73,7 +73,7 @@ func NewTableDrivenFormat(pred TableDrivenFormatPredicate) (TableDrivenFormat, e
 	return TableDrivenFormat{
 		pred:     pred,
 		category: "Table-Driven Format",
-	}, nil
+	}
 }
 
 func (c TableDrivenFormat) Check(pass *analysis.Pass, testFunc model.TestFunction) {

@@ -1,2 +1,6 @@
+[files]
+extend-exclude = [
+    "**/vendor/**",
+]
 [default.extend-identifiers]
 istErrorf = "istErrorf"
