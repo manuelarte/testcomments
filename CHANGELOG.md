@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.5](https://github.com/manuelarte/testcomments/compare/v0.0.4...v0.0.5) (2026-08-03)
+
+
+### Bug Fixes
+
+* identify function err != nil ([#59](https://github.com/manuelarte/testcomments/issues/59)) ([07db154](https://github.com/manuelarte/testcomments/commit/07db15463ad1b0c730f5b6bcfb4c35caad74a10f))
+
 ## [0.0.3](https://github.com/manuelarte/testcomments/compare/v0.0.2...v0.0.3) (2026-02-16)
 
 
