@@ -8,6 +8,7 @@ import (
 var (
 	_ IfComparing = new(ComparingParamsIfStmt)
 	_ IfComparing = new(DiffIfStmt)
+	_ IfComparing = new(BinaryToNil)
 )
 
 type (
@@ -34,6 +35,11 @@ type (
 	DiffIfStmt struct {
 		ifStmt *ast.IfStmt
 	}
+
+	BinaryToNil struct {
+		ifStmt *ast.IfStmt
+		got    *ast.Ident
+	}
 )
 
 // NewIfComparingResult creates a new IfComparingResult based on the if condition.
@@ -53,15 +59,24 @@ func NewIfComparingResult(
 	if ifStmt.Init == nil {
 		// case got != equal and !reflect.DeepEqual or !cmp.Equal
 		got, want, isValid := getGotWantParams(importGroup, testedFunctionParams, ifStmt.Cond)
-		if !isValid {
-			return nil, false
+		if isValid {
+			return ComparingParamsIfStmt{
+				ifStmt: ifStmt,
+				got:    got,
+				want:   want,
+			}, true
 		}
 
-		return ComparingParamsIfStmt{
-			ifStmt: ifStmt,
-			got:    got,
-			want:   want,
-		}, true
+		// case got == nil, or got != nil, like err != nil
+		got, isBinaryErr := getGotFromBinaryErr(testedFunctionParams, ifStmt.Cond)
+		if isBinaryErr {
+			return BinaryToNil{
+				ifStmt: ifStmt,
+				got:    got,
+			}, true
+		}
+
+		return nil, false
 	}
 
 	// Try to handle simple inlined assignment case (e.g., if got := func(); got != want)
@@ -111,6 +126,10 @@ func (c ComparingParamsIfStmt) Want() ast.Expr {
 
 func (d DiffIfStmt) IfStmt() *ast.IfStmt {
 	return d.ifStmt
+}
+
+func (e BinaryToNil) IfStmt() *ast.IfStmt {
+	return e.ifStmt
 }
 
 //nolint:gocognit // refactor later
@@ -268,6 +287,31 @@ func getGotWantParams(
 	}
 
 	return nil, nil, false
+}
+
+func getGotFromBinaryErr(params []*ast.Ident, cond ast.Expr) (*ast.Ident, bool) {
+	binaryExpr, isBinaryExpr := cond.(*ast.BinaryExpr)
+	if !isBinaryExpr {
+		return nil, false
+	}
+
+	xIdent, isXIdent := binaryExpr.X.(*ast.Ident)
+	if !isXIdent {
+		return nil, false
+	}
+
+	yIdent, isYIdent := binaryExpr.Y.(*ast.Ident)
+	if !isYIdent || yIdent.Name != "nil" {
+		return nil, false
+	}
+
+	for _, p := range params {
+		if p.Name == xIdent.Name {
+			return p, true
+		}
+	}
+
+	return nil, false
 }
 
 // isSimpleAssignmentInit checks if the init statement is a simple assignment
