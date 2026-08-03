@@ -52,7 +52,7 @@ func TestPrintHelloWorldErrCheck(t *testing.T) {
 
 	_, err := printHelloWorld()
 	if err != nil {
-		t.Errorf("unexpected err: %v", err)
+		t.Errorf("unexpected err: %v", err) // want `Failure messages should include the name of the function that failed`
 	}
 }
 
@@ -62,7 +62,7 @@ func TestPrintHelloWorld(t *testing.T) {
 	want := 10
 	got, err := printHelloWorld()
 	if err != nil {
-		t.Errorf("unexpected err: %v", err)
+		t.Errorf("unexpected err: %v", err) // want `Failure messages should include the name of the function that failed`
 	}
 	if got != want {
 		t.Errorf("got %v, want %v", got, want) // want `Failure messages should include the name of the function that failed`
