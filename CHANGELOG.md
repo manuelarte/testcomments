@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.6](https://github.com/manuelarte/testcomments/compare/v0.0.5...v0.0.6) (2026-08-28)
+
+
+### Bug Fixes
+
+* settings not working ([#65](https://github.com/manuelarte/testcomments/issues/65)) ([c70a452](https://github.com/manuelarte/testcomments/commit/c70a45212f5c6ff492f80faae411f10014cc76e1))
+
 ## [0.0.5](https://github.com/manuelarte/testcomments/compare/v0.0.4...v0.0.5) (2026-08-03)
 
 
