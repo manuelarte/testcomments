@@ -48,6 +48,9 @@ func DefaultSettings() Settings {
 	}
 }
 
+// SettingsFrom parses the settings from the given any.
+//
+//nolint:gocognit // just parsing an any
 func SettingsFrom(settings any) (Settings, error) {
 	casted, ok := settings.(map[string]any)
 	if !ok {
@@ -56,6 +59,25 @@ func SettingsFrom(settings any) (Settings, error) {
 
 	s := DefaultSettings()
 
+	if identifyFunction, okIdentifyFunction := casted[IdentifyTheFunctionCHeck]; okIdentifyFunction {
+		booleanIdentifyFunction, okBooleanIdentifyFunction := identifyFunction.(bool)
+		if !okBooleanIdentifyFunction {
+			return Settings{}, errors.New("invalid IdentifyTheFunction setting, expected bool")
+		}
+
+		s.IdentifyFunction = booleanIdentifyFunction
+	}
+
+	if gotBeforeWant, okGotBeforeWant := casted[GotBeforeWantCheck]; okGotBeforeWant {
+		booleanGotBeforeWant, okBooleanGotBeforeWant := gotBeforeWant.(bool)
+		if !okBooleanGotBeforeWant {
+			return Settings{}, errors.New("invalid GotBeforeWant setting, expected bool")
+		}
+
+		s.GotBeforeWant = booleanGotBeforeWant
+	}
+
+	//nolint:nestif // just parsing an any
 	if tableDrivenFormat, okTableDrivenFormat := casted[TableDrivenFormatCheckNamePrefix]; okTableDrivenFormat {
 		mapTableDrivenFormat, okMapTableDrivenFormat := tableDrivenFormat.(map[string]any)
 		if !okMapTableDrivenFormat {

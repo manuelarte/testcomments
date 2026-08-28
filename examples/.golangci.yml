@@ -9,7 +9,9 @@ linters:
         description: lint that follows standards described in TestComments.
         settings:
           equality-comparison:
-            reflect: false
+            reflect: true
+          identify-function: true
+          got-before-want: true
           table-driven-format:
             type: slice
             inlined: false
