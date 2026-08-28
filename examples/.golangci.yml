@@ -8,6 +8,8 @@ linters:
         type: module
         description: lint that follows standards described in TestComments.
         settings:
+          equality-comparison:
+            reflect: false
           table-driven-format:
             type: slice
             inlined: false
