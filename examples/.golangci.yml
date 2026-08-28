@@ -1,0 +1,13 @@
+version: 2
+linters:
+  enable:
+    - testcomments
+  settings:
+    custom:
+      testcomments:
+        type: module
+        description: lint that follows standards described in TestComments.
+        settings:
+          table-driven-format:
+            type: slice
+            inlined: false

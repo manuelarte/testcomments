@@ -1,0 +1,5 @@
+version: v2.13.1
+plugins:
+  - module: "github.com/manuelarte/testcomments"
+    import: "github.com/manuelarte/testcomments/plugin"
+    path: "../"
