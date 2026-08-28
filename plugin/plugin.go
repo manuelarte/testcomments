@@ -22,8 +22,6 @@ func New(settings any) (register.LinterPlugin, error) {
 		return nil, fmt.Errorf("failed to cast settings: %w", err)
 	}
 
-	fmt.Printf("testcomments plugin settings: %+v\n", castedSettings)
-
 	return &testcommentsPlugin{settings: castedSettings}, nil
 }
 
