@@ -185,7 +185,7 @@ func (t TestedCallExpr) FunctionName() string {
 }
 
 func getFunctionName(expr ast.Expr) (string, error) {
-	switch fn := (expr).(type) {
+	switch fn := expr.(type) {
 	case *ast.Ident:
 		return fn.Name, nil
 	case *ast.SelectorExpr:
