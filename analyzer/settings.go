@@ -52,7 +52,7 @@ func DefaultSettings() Settings {
 //
 //nolint:gocognit // just parsing an any
 func SettingsFrom(settings any) (Settings, error) {
-if settings == nil {
+	if settings == nil {
 		return DefaultSettings(), nil
 	}
 
