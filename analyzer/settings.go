@@ -52,6 +52,10 @@ func DefaultSettings() Settings {
 //
 //nolint:gocognit // just parsing an any
 func SettingsFrom(settings any) (Settings, error) {
+if settings == nil {
+		return DefaultSettings(), nil
+	}
+
 	casted, ok := settings.(map[string]any)
 	if !ok {
 		return Settings{}, errors.New("invalid settings type, expected map[string]any")
